@@ -41,7 +41,18 @@
 
 /* Private variables ---------------------------------------------------------*/
 TIM_HandleTypeDef htim2;
-
+int digitSegment[10][7] = {
+		{0,0,0,0,0,0,1}, //0
+		{1,0,0,1,1,1,1}, //1
+		{0,0,1,0,0,1,0}, //2
+		{0,0,0,0,1,1,0}, //3
+		{1,0,0,1,1,0,0}, //4
+		{0,1,0,0,1,0,0}, //5
+		{0,1,0,0,0,0,0}, //6
+		{0,0,0,1,1,1,1}, //7
+		{0,0,0,0,0,0,0}, //8
+		{0,0,0,0,1,0,0} //9
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -50,6 +61,7 @@ TIM_HandleTypeDef htim2;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_TIM2_Init(void);
+void display7SEG(int);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -63,6 +75,7 @@ static void MX_TIM2_Init(void);
   * @brief  The application entry point.
   * @retval int
   */
+
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -91,6 +104,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
   HAL_TIM_Base_Start_IT(&htim2);
   /* USER CODE END 2 */
+  HAL_GPIO_WritePin(EN0_GPIO_Port, EN0_Pin, 1);
+  HAL_GPIO_WritePin(EN1_GPIO_Port, EN1_Pin, 0);
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -225,10 +240,29 @@ static void MX_GPIO_Init(void)
 int counter = 100;
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	counter--;
-	if (counter <= 0) {
+	if (counter == 50) {
+		display7SEG(1);
+		HAL_GPIO_TogglePin(EN0_GPIO_Port, EN0_Pin);
+		HAL_GPIO_TogglePin(EN1_GPIO_Port, EN1_Pin);
+	}
+	if (counter == 0) {
 		counter = 100;
+		display7SEG(2);
+		HAL_GPIO_TogglePin(EN0_GPIO_Port, EN0_Pin);
+		HAL_GPIO_TogglePin(EN1_GPIO_Port, EN1_Pin);
 		HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
 	}
+
+}
+
+void display7SEG(int num) {
+	HAL_GPIO_WritePin(SEG0_GPIO_Port, SEG0_Pin, digitSegment[num][0]);
+	HAL_GPIO_WritePin(SEG1_GPIO_Port, SEG1_Pin, digitSegment[num][1]);
+	HAL_GPIO_WritePin(SEG2_GPIO_Port, SEG2_Pin, digitSegment[num][2]);
+	HAL_GPIO_WritePin(SEG3_GPIO_Port, SEG3_Pin, digitSegment[num][3]);
+	HAL_GPIO_WritePin(SEG4_GPIO_Port, SEG4_Pin, digitSegment[num][4]);
+	HAL_GPIO_WritePin(SEG5_GPIO_Port, SEG5_Pin, digitSegment[num][5]);
+	HAL_GPIO_WritePin(SEG6_GPIO_Port, SEG6_Pin, digitSegment[num][6]);
 }
 /* USER CODE END 4 */
 
